@@ -94,12 +94,12 @@ col1, col2 = st.columns(2)
 with col1:
     groq_model = st.selectbox(
         "Select Groq Model:",
-        ["mixtral-8x7b-32768", "llama2-70b-4096", "llama2-7b-32k"]
+        ["mixtral-8x7b-32768", "llama-3.3-70b-versatile	", "llama3-8b-8192"]
     )
 with col2:
     gemini_model = st.selectbox(
         "Select Gemini Model:",
-        ["gemini-pro", "gemini-pro-vision"]
+        ["gemini-2.0-flash-exp", "gemini-1.5-flash-8b", "gemini-1.5-pro"]
     )
 
 # Chat interface split into two columns
