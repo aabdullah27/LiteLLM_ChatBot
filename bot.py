@@ -8,6 +8,7 @@ import tempfile
 from litellm import completion
 import pymupdf4llm
 import asyncio
+from groq import Groq
 
 # Page configuration
 st.set_page_config(page_title="Document Chat Comparison", page_icon="🤖", layout="wide")
@@ -19,6 +20,8 @@ if "messages_gemini" not in st.session_state:
     st.session_state.messages_gemini = []
 if "vector_store" not in st.session_state:
     st.session_state.vector_store = None
+if "groq_client" not in st.session_state:
+    st.session_state.groq_client = None
 
 # Function to clear chat history
 def clear_chat_history():
@@ -33,6 +36,10 @@ with st.sidebar:
     # API Keys
     groq_api_key = st.text_input("🔑 Groq API Key:", type="password")
     gemini_api_key = st.text_input("🔑 Gemini API Key:", type="password")
+    
+    # Initialize Groq client if API key is provided
+    if groq_api_key:
+        st.session_state.groq_client = Groq(api_key=groq_api_key)
     
     # Document upload
     uploaded_file = st.file_uploader("📤 Upload Document (PDF)", type=["pdf"])
@@ -87,7 +94,7 @@ col1, col2 = st.columns(2)
 with col1:
     groq_model = st.selectbox(
         "Select Groq Model:",
-        ["mixtral-8x7b-32768", "llama3-groq-70b-8192", "llama3-groq-8b-8192"]
+        ["mixtral-8x7b-32768", "llama2-70b-4096", "llama2-7b-32k"]
     )
 with col2:
     gemini_model = st.selectbox(
@@ -147,18 +154,17 @@ if prompt := st.chat_input("Ask a question about your document"):
         formatted_prompt = prompt_template.format(context=context_text, question=prompt)
         
         try:
-            # Get Groq response with provider prefix
-            groq_response = completion(
-                model=f"groq/{groq_model}",  # Added 'groq/' prefix
-                messages=[{"role": "user", "content": formatted_prompt}],
-                api_key=groq_api_key
+            # Get Groq response using the Groq client
+            groq_chat_completion = st.session_state.groq_client.chat.completions.create(
+                model=groq_model,
+                messages=[{"role": "user", "content": formatted_prompt}]
             )
-            groq_content = groq_response.choices[0].message.content
+            groq_content = groq_chat_completion.choices[0].message.content
             st.session_state.messages_groq.append({"role": "assistant", "content": groq_content})
             
-            # Get Gemini response with provider prefix
+            # Get Gemini response
             gemini_response = completion(
-                model=f"gemini/{gemini_model}",  # Added 'gemini/' prefix
+                model=f"gemini/{gemini_model}",
                 messages=[{"role": "user", "content": formatted_prompt}],
                 api_key=gemini_api_key
             )
