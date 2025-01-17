@@ -10,3 +10,4 @@ pymupdf4llm
 pymupdf
 python-dotenv
 asyncio
+groq
