@@ -94,7 +94,7 @@ col1, col2 = st.columns(2)
 with col1:
     groq_model = st.selectbox(
         "Select Groq Model:",
-        ["mixtral-8x7b-32768", "llama-3.3-70b-versatile	", "llama3-8b-8192"]
+        ["mixtral-8x7b-32768", "llama-3.3-70b-versatile", "llama3-8b-8192"]
     )
 with col2:
     gemini_model = st.selectbox(
